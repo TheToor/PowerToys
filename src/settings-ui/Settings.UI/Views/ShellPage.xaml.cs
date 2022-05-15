@@ -5,6 +5,10 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Reflection;
+using System.Text.Json.Serialization;
+using Microsoft.PowerToys.Settings.UI.Library;
 using Microsoft.PowerToys.Settings.UI.Services;
 using Microsoft.PowerToys.Settings.UI.ViewModels;
 using Microsoft.UI.Xaml;
@@ -80,6 +84,56 @@ namespace Microsoft.PowerToys.Settings.UI.Views
             InitializeComponent();
 
             DataContext = ViewModel;
+
+            var settingsUtil = new SettingsUtils();
+            var enterpriseSettings = SettingsRepository<EnterpriseSettings>.GetInstance(settingsUtil);
+
+            // var moduleNames = typeof(EnabledModules)
+            //    .GetProperties()
+            //    .Where(p => p.GetCustomAttributes().FirstOrDefault(a => a is JsonPropertyNameAttribute) is not null)
+            //    .ToDictionary(
+            //        p => (p.GetCustomAttributes().FirstOrDefault(a => a is JsonPropertyNameAttribute) as JsonPropertyNameAttribute)?.Name,
+            //        p => p.Name);
+            var moduleNames = new Dictionary<string, string>
+            {
+                { "Always On Top", "AlwaysOnTop" },
+                { "Awake", "Awake" },
+                { "Color Picker", "ColorPicker" },
+                { "FancyZones", "FancyZones" },
+                { "File Explorer add-ons", "FileExplorerPreview" },
+                { "Image Resizer", "ImageResizer" },
+                { "Keyboard Manager", "KeyboardManager" },
+                { "PowerRename", "PowerRename" },
+                { "PowerToys Run", "PowerLauncher" },
+                { "Shortcut Guide", "ShortcutGuide" },
+                { "Video Conference Mute", "VideoConference" },
+            };
+
+            var items = navigationView.MenuItems.OfType<NavigationViewItem>();
+            foreach (var item in items)
+            {
+                if (moduleNames.ContainsKey((string)item.Content))
+                {
+                    var propertyName = moduleNames[(string)item.Content];
+                    var property = typeof(EnabledModules).GetProperty(propertyName);
+                    var value = (bool)property.GetValue(enterpriseSettings.SettingsConfig.EnabledModules);
+                    if (!value)
+                    {
+                        item.Visibility = Visibility.Collapsed;
+                    }
+                }
+            }
+
+            // If all Mouse modules are disables we can hide the whole module from the navigation
+            if (
+                !enterpriseSettings.SettingsConfig.EnabledModules.FindMyMouse &&
+                !enterpriseSettings.SettingsConfig.EnabledModules.MouseHighlighter &&
+                !enterpriseSettings.SettingsConfig.EnabledModules.MousePointerCrosshairs
+            )
+            {
+                items.FirstOrDefault(i => (string)i.Content == "Mouse utilities").Visibility = Visibility.Collapsed;
+            }
+
             ShellHandler = this;
             ViewModel.Initialize(shellFrame, navigationView, KeyboardAccelerators);
             shellFrame.Navigate(typeof(GeneralPage));

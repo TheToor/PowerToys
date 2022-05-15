@@ -16,7 +16,7 @@
                                   ModuleImageSource="ms-appx:///Assets/Modules/MouseUtils.png">
         <controls:SettingsPageControl.ModuleContent>
             <StackPanel Orientation="Vertical">
-                <controls:SettingsGroup x:Uid="MouseUtils_FindMyMouse">
+                <controls:SettingsGroup x:Name="MouseUtils_FindMyMouse" x:Uid="MouseUtils_FindMyMouse">
                     <controls:Setting x:Uid="MouseUtils_Enable_FindMyMouse">
                         <controls:Setting.Icon>
                             <BitmapIcon Height="24" Width="24" Margin="-4,0,0,0" UriSource="ms-appx:///Assets/FluentIcons/FluentIconsFindMyMouse.png" ShowAsMonochrome="False" />
@@ -137,7 +137,7 @@
                     </controls:SettingExpander>
                 </controls:SettingsGroup>
 
-                <controls:SettingsGroup x:Uid="MouseUtils_MouseHighlighter">
+                <controls:SettingsGroup x:Name="MouseUtils_MouseHighlighter" x:Uid="MouseUtils_MouseHighlighter">
                     <controls:Setting x:Uid="MouseUtils_Enable_MouseHighlighter">
                         <controls:Setting.Icon>
                             <BitmapIcon Height="28" Width="28" Margin="-4,2,0,0" UriSource="ms-appx:///Assets/FluentIcons/FluentIconsMouseHighlighter.png" ShowAsMonochrome="False" />
@@ -226,7 +226,7 @@
             </controls:SettingExpander>
                 </controls:SettingsGroup>
 
-                <controls:SettingsGroup x:Uid="MouseUtils_MousePointerCrosshairs">
+                <controls:SettingsGroup x:Name="MouseUtils_MousePointerCrosshairs" x:Uid="MouseUtils_MousePointerCrosshairs">
                     <controls:Setting x:Uid="MouseUtils_Enable_MousePointerCrosshairs">
                         <controls:Setting.Icon>
                             <BitmapIcon Height="28" Width="28" Margin="-6,2,0,0" UriSource="ms-appx:///Assets/FluentIcons/FluentIconsMouseCrosshairs.png" ShowAsMonochrome="False" />

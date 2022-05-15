@@ -9,6 +9,7 @@ namespace PTSettingsHelper
     constexpr inline const wchar_t* log_settings_filename = L"log_settings.json";
 
     std::wstring get_powertoys_general_save_file_location();
+    std::wstring get_powertoys_enterprise_save_file_location();
     std::wstring get_module_save_file_location(std::wstring_view powertoy_key);
     std::wstring get_module_save_folder_location(std::wstring_view powertoy_name);
     std::wstring get_root_save_folder_location();
@@ -17,6 +18,7 @@ namespace PTSettingsHelper
     json::JsonObject load_module_settings(std::wstring_view powertoy_name);
     void save_general_settings(const json::JsonObject& settings);
     json::JsonObject load_general_settings();
+    json::JsonObject load_enterprise_settings();
     std::wstring get_log_settings_file_location();
 
     bool get_oobe_opened_state();

@@ -20,5 +20,5 @@ struct GeneralSettings
 
 json::JsonObject load_general_settings();
 GeneralSettings get_general_settings();
-void apply_general_settings(const json::JsonObject& general_configs, bool save = true);
+void apply_general_settings(const json::JsonObject& general_configs, bool save = true, const json::JsonObject& enterprise_settings = NULL);
 void start_enabled_powertoys();

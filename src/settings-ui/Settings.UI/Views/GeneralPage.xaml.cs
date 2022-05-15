@@ -10,7 +10,6 @@ using Microsoft.PowerToys.Settings.UI.Library.ViewModels;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Windows.ApplicationModel.Resources;
-using Windows.UI.Core;
 
 namespace Microsoft.PowerToys.Settings.UI.Views
 {
@@ -36,6 +35,11 @@ namespace Microsoft.PowerToys.Settings.UI.Views
             // Load string resources
             ResourceLoader loader = ResourceLoader.GetForViewIndependentUse();
             var settingsUtils = new SettingsUtils();
+
+            if (!SettingsRepository<EnterpriseSettings>.GetInstance(settingsUtils).SettingsConfig.EnableAutoUpdate)
+            {
+                General_Version.Visibility = Visibility.Collapsed;
+            }
 
             Action stateUpdatingAction = () =>
             {

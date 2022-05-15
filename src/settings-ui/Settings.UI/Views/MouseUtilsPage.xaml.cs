@@ -43,6 +43,22 @@ namespace Microsoft.PowerToys.Settings.UI.Views
 
             DataContext = ViewModel;
             InitializeComponent();
+
+            var enabledModules = SettingsRepository<EnterpriseSettings>.GetInstance(settingsUtils).SettingsConfig.EnabledModules;
+            if (!enabledModules.FindMyMouse)
+            {
+                MouseUtils_FindMyMouse.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+            }
+
+            if (!enabledModules.MouseHighlighter)
+            {
+                MouseUtils_MouseHighlighter.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+            }
+
+            if (!enabledModules.MousePointerCrosshairs)
+            {
+                MouseUtils_MousePointerCrosshairs.Visibility = Microsoft.UI.Xaml.Visibility.Collapsed;
+            }
         }
     }
 }

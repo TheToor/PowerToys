@@ -4,6 +4,7 @@
 namespace PTSettingsHelper
 {
     constexpr inline const wchar_t* settings_filename = L"\\settings.json";
+    constexpr inline const wchar_t* enterprise_settings_filename = L"\\enterprise_settings.json";
     constexpr inline const wchar_t* oobe_filename = L"oobe_settings.json";
     constexpr inline const wchar_t* last_version_run_filename = L"last_version_run.json";
     constexpr inline const wchar_t* opened_at_first_launch_json_field_name = L"openedAtFirstLaunch";
@@ -48,6 +49,17 @@ namespace PTSettingsHelper
         return get_root_save_folder_location() + settings_filename;
     }
 
+    std::wstring get_powertoys_enterprise_save_file_location()
+    {
+        WCHAR modulePath[MAX_PATH];
+        if (!GetModuleFileName(NULL, modulePath, MAX_PATH))
+        {
+            return enterprise_settings_filename;
+        }
+        auto path = std::filesystem::path(modulePath);
+        return path.parent_path().wstring() + enterprise_settings_filename;
+    }
+
     void save_module_settings(std::wstring_view powertoy_key, json::JsonObject& settings)
     {
         const std::wstring save_file_location = get_module_save_file_location(powertoy_key);
@@ -70,6 +82,13 @@ namespace PTSettingsHelper
     json::JsonObject load_general_settings()
     {
         const std::wstring save_file_location = get_powertoys_general_save_file_location();
+        auto saved_settings = json::from_file(save_file_location);
+        return saved_settings.has_value() ? std::move(*saved_settings) : json::JsonObject{};
+    }
+
+    json::JsonObject load_enterprise_settings()
+    {
+        const std::wstring save_file_location = get_powertoys_enterprise_save_file_location();
         auto saved_settings = json::from_file(save_file_location);
         return saved_settings.has_value() ? std::move(*saved_settings) : json::JsonObject{};
     }

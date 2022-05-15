@@ -46,6 +46,7 @@
 #include <common/utils/window.h>
 #include <common/version/version.h>
 #include <gdiplus.h>
+#include <runner/enterprise_settings.h>
 
 namespace
 {
@@ -105,7 +106,7 @@ void debug_verify_launcher_assets()
     }
 }
 
-int runner(bool isProcessElevated, bool openSettings, std::string settingsWindow, bool openOobe, bool openScoobe)
+int runner(bool isProcessElevated, bool openSettings, std::string settingsWindow, bool openOobe, bool openScoobe, json::JsonObject enterprise_settings)
 {
     Logger::info("Runner is starting. Elevated={}", isProcessElevated);
     DPIAware::EnableDPIAwarenessForThisProcess();
@@ -124,9 +125,12 @@ int runner(bool isProcessElevated, bool openSettings, std::string settingsWindow
     {
         debug_verify_launcher_assets();
 
-        std::thread{ [] {
-            PeriodicUpdateWorker();
-        } }.detach();
+        if (enterprise_settings.GetNamedBoolean(L"isAutoUpdateEnabled", true))
+        {
+            std::thread{ [] {
+                PeriodicUpdateWorker();
+            } }.detach();
+        }
 
         std::thread{ [] {
             if (updating::uninstall_previous_msix_version_async().get())
@@ -138,29 +142,76 @@ int runner(bool isProcessElevated, bool openSettings, std::string settingsWindow
         chdir_current_executable();
         // Load Powertoys DLLs
 
-        std::vector<std::wstring_view> knownModules = {
-            L"modules/FancyZones/PowerToys.FancyZonesModuleInterface.dll",
-            L"modules/FileExplorerPreview/PowerToys.powerpreview.dll",
-            L"modules/ImageResizer/PowerToys.ImageResizerExt.dll",
-            L"modules/KeyboardManager/PowerToys.KeyboardManager.dll",
-            L"modules/Launcher/PowerToys.Launcher.dll",
-            L"modules/PowerRename/PowerToys.PowerRenameExt.dll",
-            L"modules/ShortcutGuide/ShortcutGuideModuleInterface/PowerToys.ShortcutGuideModuleInterface.dll",
-            L"modules/ColorPicker/PowerToys.ColorPicker.dll",
-            L"modules/Awake/PowerToys.AwakeModuleInterface.dll",
-            L"modules/MouseUtils/PowerToys.FindMyMouse.dll" ,
-            L"modules/MouseUtils/PowerToys.MouseHighlighter.dll",
-            L"modules/AlwaysOnTop/PowerToys.AlwaysOnTopModuleInterface.dll",
-            L"modules/MouseUtils/PowerToys.MousePointerCrosshairs.dll",
-        };
-        const auto VCM_PATH = L"modules/VideoConference/PowerToys.VideoConferenceModule.dll";
-        if (const auto mf = LoadLibraryA("mf.dll"))
+        std::vector<std::wstring_view> modulesToLoad = {};
+        if (enterprise_settings.GetNamedBoolean(L"EnableFancyZones", true))
         {
-            FreeLibrary(mf);
-            knownModules.emplace_back(VCM_PATH);
+            modulesToLoad.emplace_back(L"modules/FancyZones/PowerToys.FancyZonesModuleInterface.dll");
+        }
+        if (enterprise_settings.GetNamedBoolean(L"EnablePowerPreview", true))
+        {
+            modulesToLoad.emplace_back(L"modules/FileExplorerPreview/PowerToys.powerpreview.dll");
+        }
+        if (enterprise_settings.GetNamedBoolean(L"EnabledImageResizer", true))
+        {
+            modulesToLoad.emplace_back(L"modules/ImageResizer/PowerToys.ImageResizerExt.dll");
         }
 
-        for (const auto& moduleSubdir : knownModules)
+        if (enterprise_settings.GetNamedBoolean(L"EnableKeyboardManager", true))
+        {
+            modulesToLoad.emplace_back(L"modules/KeyboardManager/PowerToys.KeyboardManager.dll");
+        }
+        if (enterprise_settings.GetNamedBoolean(L"EnableLauncher", true))
+        {
+            modulesToLoad.emplace_back(L"modules/Launcher/PowerToys.Launcher.dll");
+        }
+        if (enterprise_settings.GetNamedBoolean(L"EnablePowerRename", true))
+        {
+            modulesToLoad.emplace_back(L"modules/PowerRename/PowerToys.PowerRenameExt.dll");
+        }
+        if (enterprise_settings.GetNamedBoolean(L"EnableShortcutGuide", true))
+        {
+            modulesToLoad.emplace_back(L"modules/ShortcutGuide/ShortcutGuideModuleInterface/PowerToys.ShortcutGuideModuleInterface.dll");
+        }
+        if (enterprise_settings.GetNamedBoolean(L"EnableColorPicker", true))
+        {
+            modulesToLoad.emplace_back(L"modules/ColorPicker/PowerToys.ColorPicker.dll");
+        }
+        if (enterprise_settings.GetNamedBoolean(L"EnableAwake", true))
+        {
+            modulesToLoad.emplace_back(L"modules/Awake/PowerToys.AwakeModuleInterface.dll");
+        }
+        if (enterprise_settings.GetNamedBoolean(L"EnableAlwaysOnTop", true))
+        {
+            modulesToLoad.emplace_back(L"modules/AlwaysOnTop/PowerToys.AlwaysOnTopModuleInterface.dll");
+        }
+
+        if (enterprise_settings.GetNamedBoolean(L"EnableMouseUtils", true))
+        {
+            if (enterprise_settings.GetNamedBoolean(L"EnableFindMyMouse", true))
+            {
+                modulesToLoad.emplace_back(L"modules/MouseUtils/PowerToys.FindMyMouse.dll");
+            }
+            if (enterprise_settings.GetNamedBoolean(L"EnableMouseHighlighter", true))
+            {
+                modulesToLoad.emplace_back(L"modules/MouseUtils/PowerToys.MouseHighlighter.dll");
+            }
+            if (enterprise_settings.GetNamedBoolean(L"EnableMousePointerCrosshair", true))
+            {
+                modulesToLoad.emplace_back(L"modules/MouseUtils/PowerToys.MousePointerCrosshairs.dll");
+            }
+        }
+
+        if (enterprise_settings.GetNamedBoolean(L"EnableVideoConference", true))
+        {
+            const auto VCM_PATH = L"modules/VideoConference/PowerToys.VideoConferenceModule.dll";
+            if (const auto mf = LoadLibraryA("mf.dll"))
+            {
+                FreeLibrary(mf);
+                modulesToLoad.emplace_back(VCM_PATH);
+            }
+        }
+
+        for (const auto& moduleSubdir : modulesToLoad)
         {
             try
             {
@@ -396,16 +447,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         modules();
 
         auto general_settings = load_general_settings();
+        auto enterprise_settings = load_enterprise_settings();
 
         // Apply the general settings but don't save it as the modules() variable has not been loaded yet
-        apply_general_settings(general_settings, false);
+        apply_general_settings(general_settings, false, enterprise_settings);
         int rvalue = 0;
         const bool elevated = is_process_elevated();
         const bool with_dont_elevate_arg = cmdLine.find("--dont-elevate") != std::string::npos;
         const bool run_elevated_setting = general_settings.GetNamedBoolean(L"run_elevated", false);
 
         if (elevated && with_dont_elevate_arg && !run_elevated_setting)
-
+            
         {
             Logger::info("Scheduling restart as non elevated");
             schedule_restart_as_non_elevated();
@@ -414,7 +466,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         else if (elevated || !run_elevated_setting || with_dont_elevate_arg)
 
         {
-            result = runner(elevated, open_settings, settings_window, openOobe, openScoobe);
+            result = runner(elevated, open_settings, settings_window, openOobe, openScoobe, enterprise_settings);
 
             // Save settings on closing
             auto general_settings = get_general_settings();

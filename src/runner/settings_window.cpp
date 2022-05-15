@@ -26,6 +26,7 @@
 #include <common/updating/updateState.h>
 #include <common/themes/windows_colors.h>
 #include "settings_window.h"
+#include <runner/enterprise_settings.h>
 
 #define BUFSIZE 1024
 
@@ -54,6 +55,7 @@ json::JsonObject get_all_settings()
     json::JsonObject result;
 
     result.SetNamedValue(L"general", get_general_settings().to_json());
+    result.SetNamedValue(L"enterprise", load_enterprise_settings());
     result.SetNamedValue(L"powertoys", get_power_toys_settings());
     return result;
 }

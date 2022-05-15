@@ -11,6 +11,7 @@
 #include <common/utils/elevation.h>
 #include <common/version/version.h>
 #include <common/utils/resources.h>
+#include <runner/enterprise_settings.h>
 
 // TODO: would be nice to get rid of these globals, since they're basically cached json settings
 static std::wstring settings_theme = L"system";
@@ -82,12 +83,20 @@ GeneralSettings get_general_settings()
     return settings;
 }
 
-void apply_general_settings(const json::JsonObject& general_configs, bool save)
+void apply_general_settings(const json::JsonObject& general_configs, bool save, const json::JsonObject& enterprise_settings)
 {
     Logger::info(L"apply_general_settings: {}", std::wstring{ general_configs.ToString() });
+    if (enterprise_settings != NULL)
+    {
+        Logger::info(L"apply_general_settings: {}", std::wstring{ enterprise_settings.ToString() });
+    }
     run_as_elevated = general_configs.GetNamedBoolean(L"run_elevated", false);
 
     download_updates_automatically = general_configs.GetNamedBoolean(L"download_updates_automatically", true);
+    if (enterprise_settings != NULL)
+    {
+        download_updates_automatically = download_updates_automatically && enterprise_settings.GetNamedBoolean(L"EnableAutoUpdates", true);
+    }
 
     if (json::has(general_configs, L"startup", json::JsonValueType::Boolean))
     {
@@ -182,12 +191,14 @@ void start_enabled_powertoys()
     }
 
     json::JsonObject general_settings;
+    json::JsonObject enterprise_settings;
     try
     {
         general_settings = load_general_settings();
         if (general_settings.HasKey(L"enabled"))
         {
             json::JsonObject enabled = general_settings.GetNamedObject(L"enabled");
+
             for (const auto& disabled_element : enabled)
             {
                 std::wstring disable_module_name{ static_cast<std::wstring_view>(disabled_element.Key()) };
@@ -202,6 +213,22 @@ void start_enabled_powertoys()
                 {
                     Logger::info(L"start_enabled_powertoys: Overriding default enabled value for {} powertoy", disable_module_name);
                     powertoys_to_disable.erase(it);
+                }
+            }
+        }
+
+        enterprise_settings = load_enterprise_settings();
+        if (enterprise_settings.HasKey(L"enabled"))
+        {
+            json::JsonObject enabled = enterprise_settings.GetNamedObject(L"enabled");
+            for (const auto& disabled_element : enabled)
+            {
+                std::wstring disable_module_name{ static_cast<std::wstring_view>(disabled_element.Key()) };
+                // Disable enterprise disabled modules
+                if (!disabled_element.Value().GetBoolean())
+                {
+                    Logger::info(L"start_enabled_powertoys: Powertoy {} disabled by company policy", disable_module_name);
+                    powertoys_to_disable.emplace(std::move(disable_module_name));
                 }
             }
         }

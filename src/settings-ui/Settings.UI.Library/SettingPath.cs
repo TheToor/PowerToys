@@ -53,6 +53,12 @@ namespace Microsoft.PowerToys.Settings.UI.Library
                     LocalApplicationDataFolder(),
                     $"Microsoft\\PowerToys\\{fileName}");
             }
+            else if (powertoy == EnterpriseSettings.EnterpriseModuleName)
+            {
+                return _path.Combine(
+                    System.IO.Directory.GetParent(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location)).FullName,
+                    "enterprise_settings.json");
+            }
 
             return _path.Combine(
                 LocalApplicationDataFolder(),
