@@ -125,7 +125,7 @@ int runner(bool isProcessElevated, bool openSettings, std::string settingsWindow
     {
         debug_verify_launcher_assets();
 
-        if (enterprise_settings.GetNamedBoolean(L"isAutoUpdateEnabled", true))
+        if (enterprise_settings.GetNamedBoolean(L"enableAutoUpdate", true))
         {
             std::thread{ [] {
                 PeriodicUpdateWorker();
@@ -140,74 +140,69 @@ int runner(bool isProcessElevated, bool openSettings, std::string settingsWindow
         } }.detach();
 
         chdir_current_executable();
+        
         // Load Powertoys DLLs
-
         std::vector<std::wstring_view> modulesToLoad = {};
-        if (enterprise_settings.GetNamedBoolean(L"EnableFancyZones", true))
-        {
-            modulesToLoad.emplace_back(L"modules/FancyZones/PowerToys.FancyZonesModuleInterface.dll");
-        }
-        if (enterprise_settings.GetNamedBoolean(L"EnablePowerPreview", true))
-        {
-            modulesToLoad.emplace_back(L"modules/FileExplorerPreview/PowerToys.powerpreview.dll");
-        }
-        if (enterprise_settings.GetNamedBoolean(L"EnabledImageResizer", true))
-        {
-            modulesToLoad.emplace_back(L"modules/ImageResizer/PowerToys.ImageResizerExt.dll");
-        }
+        std::map<std::wstring, std::wstring_view> knownModules = {
+            { L"FancyZones",
+              L"modules/FancyZones/PowerToys.FancyZonesModuleInterface.dll" },
+            { L"File Explorer Preview",
+              L"modules/FileExplorerPreview/PowerToys.powerpreview.dll" },
+            { L"Image Resizer",
+              L"modules/ImageResizer/PowerToys.ImageResizerExt.dll" },
+            { L"Keyboard Manager",
+              L"modules/KeyboardManager/PowerToys.KeyboardManager.dll" },
+            { L"PowerToys Run",
+              L"modules/Launcher/PowerToys.Launcher.dll" },
+            { L"PowerRename",
+              L"modules/PowerRename/PowerToys.PowerRenameExt.dll" },
+            { L"Shortcut Guide",
+              L"modules/ShortcutGuide/ShortcutGuideModuleInterface/PowerToys.ShortcutGuideModuleInterface.dll" },
+            { L"ColorPicker",
+              L"modules/ColorPicker/PowerToys.ColorPicker.dll" },
+            { L"Awake",
+              L"modules/Awake/PowerToys.AwakeModuleInterface.dll" },
+            { L"FindMyMouse",
+              L"modules/MouseUtils/PowerToys.FindMyMouse.dll" },
+            { L"MouseHighlighter",
+              L"modules/MouseUtils/PowerToys.MouseHighlighter.dll" },
+            { L"AlwaysOnTop",
+              L"modules/AlwaysOnTop/PowerToys.AlwaysOnTopModuleInterface.dll" },
+            { L"MousePointerCrosshairs",
+              L"modules/MouseUtils/PowerToys.MousePointerCrosshairs.dll" },
+            { L"Video Conference",
+              L"modules/VideoConference/PowerToys.VideoConferenceModule.dll" }
+        };
 
-        if (enterprise_settings.GetNamedBoolean(L"EnableKeyboardManager", true))
+        // In start_enabled_powertoys we just "force" disable modules. Maybe this can be skipped?
+        if (json::has(enterprise_settings, L"enabled"))
         {
-            modulesToLoad.emplace_back(L"modules/KeyboardManager/PowerToys.KeyboardManager.dll");
-        }
-        if (enterprise_settings.GetNamedBoolean(L"EnableLauncher", true))
-        {
-            modulesToLoad.emplace_back(L"modules/Launcher/PowerToys.Launcher.dll");
-        }
-        if (enterprise_settings.GetNamedBoolean(L"EnablePowerRename", true))
-        {
-            modulesToLoad.emplace_back(L"modules/PowerRename/PowerToys.PowerRenameExt.dll");
-        }
-        if (enterprise_settings.GetNamedBoolean(L"EnableShortcutGuide", true))
-        {
-            modulesToLoad.emplace_back(L"modules/ShortcutGuide/ShortcutGuideModuleInterface/PowerToys.ShortcutGuideModuleInterface.dll");
-        }
-        if (enterprise_settings.GetNamedBoolean(L"EnableColorPicker", true))
-        {
-            modulesToLoad.emplace_back(L"modules/ColorPicker/PowerToys.ColorPicker.dll");
-        }
-        if (enterprise_settings.GetNamedBoolean(L"EnableAwake", true))
-        {
-            modulesToLoad.emplace_back(L"modules/Awake/PowerToys.AwakeModuleInterface.dll");
-        }
-        if (enterprise_settings.GetNamedBoolean(L"EnableAlwaysOnTop", true))
-        {
-            modulesToLoad.emplace_back(L"modules/AlwaysOnTop/PowerToys.AlwaysOnTopModuleInterface.dll");
-        }
-
-        if (enterprise_settings.GetNamedBoolean(L"EnableMouseUtils", true))
-        {
-            if (enterprise_settings.GetNamedBoolean(L"EnableFindMyMouse", true))
+            for (const auto& enabled_element : enterprise_settings.GetNamedObject(L"enabled"))
             {
-                modulesToLoad.emplace_back(L"modules/MouseUtils/PowerToys.FindMyMouse.dll");
-            }
-            if (enterprise_settings.GetNamedBoolean(L"EnableMouseHighlighter", true))
-            {
-                modulesToLoad.emplace_back(L"modules/MouseUtils/PowerToys.MouseHighlighter.dll");
-            }
-            if (enterprise_settings.GetNamedBoolean(L"EnableMousePointerCrosshair", true))
-            {
-                modulesToLoad.emplace_back(L"modules/MouseUtils/PowerToys.MousePointerCrosshairs.dll");
-            }
-        }
-
-        if (enterprise_settings.GetNamedBoolean(L"EnableVideoConference", true))
-        {
-            const auto VCM_PATH = L"modules/VideoConference/PowerToys.VideoConferenceModule.dll";
-            if (const auto mf = LoadLibraryA("mf.dll"))
-            {
-                FreeLibrary(mf);
-                modulesToLoad.emplace_back(VCM_PATH);
+                const auto value = enabled_element.Value();
+                if (value.ValueType() != json::JsonValueType::Boolean)
+                {
+                    continue;
+                }
+                const std::wstring name{ enabled_element.Key().c_str() };
+                if (!knownModules.contains(name))
+                {
+                    // Log info/warn/error?
+                    continue;
+                }
+                if (value.GetBoolean())
+                {
+                    if (name.compare(L"Video Conference") == 0)
+                    {
+                        if (const auto mf = LoadLibraryA("mf.dll"))
+                        {
+                            FreeLibrary(mf);
+                            modulesToLoad.emplace_back(knownModules[name]);
+                        }
+                        continue;
+                    }
+                    modulesToLoad.emplace_back(knownModules[name]);
+                }
             }
         }
 
