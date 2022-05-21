@@ -104,7 +104,7 @@ namespace Microsoft.PowerToys.Settings.UI.Views
                 }
             }
 
-            // If all Mouse modules are disables we can hide the whole module from the navigation
+            // If all Mouse modules are disabled we can hide the whole module from the navigation
             if (
                 !enterpriseSettings.SettingsConfig.EnabledModules.FindMyMouse &&
                 !enterpriseSettings.SettingsConfig.EnabledModules.MouseHighlighter &&
