@@ -51,8 +51,7 @@
 
                 <muxc:NavigationViewItem x:Uid="Shell_AlwaysOnTop"
                                          x:Name="AlwaysOnTop"
-                                         helpers:NavHelper.NavigateTo="views:AlwaysOnTopPage"
-                                         Visibility="Collapsed">
+                                         helpers:NavHelper.NavigateTo="views:AlwaysOnTopPage">
                     <muxc:NavigationViewItem.Icon>
                         <BitmapIcon UriSource="ms-appx:///Assets/FluentIcons/FluentIconsAlwaysOnTop.png"
                                     ShowAsMonochrome="False" />
