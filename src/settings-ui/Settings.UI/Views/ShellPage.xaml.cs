@@ -88,39 +88,19 @@ namespace Microsoft.PowerToys.Settings.UI.Views
             var settingsUtil = new SettingsUtils();
             var enterpriseSettings = SettingsRepository<EnterpriseSettings>.GetInstance(settingsUtil);
 
-            // var moduleNames = typeof(EnabledModules)
-            //    .GetProperties()
-            //    .Where(p => p.GetCustomAttributes().FirstOrDefault(a => a is JsonPropertyNameAttribute) is not null)
-            //    .ToDictionary(
-            //        p => (p.GetCustomAttributes().FirstOrDefault(a => a is JsonPropertyNameAttribute) as JsonPropertyNameAttribute)?.Name,
-            //        p => p.Name);
-            var moduleNames = new Dictionary<string, string>
-            {
-                { "Always On Top", "AlwaysOnTop" },
-                { "Awake", "Awake" },
-                { "Color Picker", "ColorPicker" },
-                { "FancyZones", "FancyZones" },
-                { "File Explorer add-ons", "FileExplorerPreview" },
-                { "Image Resizer", "ImageResizer" },
-                { "Keyboard Manager", "KeyboardManager" },
-                { "PowerRename", "PowerRename" },
-                { "PowerToys Run", "PowerLauncher" },
-                { "Shortcut Guide", "ShortcutGuide" },
-                { "Video Conference Mute", "VideoConference" },
-            };
-
             var items = navigationView.MenuItems.OfType<NavigationViewItem>();
             foreach (var item in items)
             {
-                if (moduleNames.ContainsKey((string)item.Content))
+                var property = typeof(EnabledModules).GetProperty(item.Name);
+                if (property == null)
                 {
-                    var propertyName = moduleNames[(string)item.Content];
-                    var property = typeof(EnabledModules).GetProperty(propertyName);
-                    var value = (bool)property.GetValue(enterpriseSettings.SettingsConfig.EnabledModules);
-                    if (!value)
-                    {
-                        item.Visibility = Visibility.Collapsed;
-                    }
+                    continue;
+                }
+
+                var value = (bool)property.GetValue(enterpriseSettings.SettingsConfig.EnabledModules);
+                if (!value)
+                {
+                    item.Visibility = Visibility.Collapsed;
                 }
             }
 

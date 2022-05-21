@@ -4,7 +4,7 @@
 
 struct EnterpriseSettings
 {
-    bool isAutoUpdateEnabled;
+    bool enableAutoUpdate;
 
     std::map<std::wstring, bool> isModulesEnabledMap;
 };

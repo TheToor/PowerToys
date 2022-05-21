@@ -50,6 +50,7 @@
                 </muxc:NavigationViewItem>
 
                 <muxc:NavigationViewItem x:Uid="Shell_AlwaysOnTop"
+                                         x:Name="AlwaysOnTop"
                                          helpers:NavHelper.NavigateTo="views:AlwaysOnTopPage"
                                          Visibility="Collapsed">
                     <muxc:NavigationViewItem.Icon>
@@ -59,6 +60,7 @@
                 </muxc:NavigationViewItem>
 
                 <muxc:NavigationViewItem x:Uid="Shell_Awake"
+                                         x:Name="Awake"
                                          helpers:NavHelper.NavigateTo="views:AwakePage">
                     <muxc:NavigationViewItem.Icon>
                         <BitmapIcon UriSource="ms-appx:///Assets/FluentIcons/FluentIconsAwake.png"
@@ -67,6 +69,7 @@
                 </muxc:NavigationViewItem>
 
                 <muxc:NavigationViewItem x:Uid="Shell_ColorPicker"
+                                         x:Name="ColorPicker"
                                          helpers:NavHelper.NavigateTo="views:ColorPickerPage">
                     <muxc:NavigationViewItem.Icon>
                         <BitmapIcon UriSource="ms-appx:///Assets/FluentIcons/FluentIconsColorPicker.png"
@@ -75,6 +78,7 @@
                 </muxc:NavigationViewItem>
 
                 <muxc:NavigationViewItem x:Uid="Shell_FancyZones"
+                                         x:Name="FancyZones"
                                          helpers:NavHelper.NavigateTo="views:FancyZonesPage">
                     <muxc:NavigationViewItem.Icon>
                         <BitmapIcon UriSource="ms-appx:///Assets/FluentIcons/FluentIconsFancyZones.png"
@@ -83,6 +87,7 @@
                 </muxc:NavigationViewItem>
 
                 <muxc:NavigationViewItem x:Uid="Shell_PowerPreview"
+                                         x:Name="FileExplorerPreview"
                                          helpers:NavHelper.NavigateTo="views:PowerPreviewPage">
                     <muxc:NavigationViewItem.Icon>
                         <BitmapIcon UriSource="ms-appx:///Assets/FluentIcons/FluentIconsFileExplorerPreview.png"
@@ -91,6 +96,7 @@
                 </muxc:NavigationViewItem>
 
                 <muxc:NavigationViewItem x:Uid="Shell_ImageResizer"
+                                         x:Name="ImageResizer"
                                          helpers:NavHelper.NavigateTo="views:ImageResizerPage">
                     <muxc:NavigationViewItem.Icon>
                         <BitmapIcon UriSource="ms-appx:///Assets/FluentIcons/FluentIconsImageResizer.png"
@@ -99,6 +105,7 @@
                 </muxc:NavigationViewItem>
 
                 <muxc:NavigationViewItem x:Uid="Shell_KeyboardManager"
+                                         x:Name="KeyboardManager"
                                          helpers:NavHelper.NavigateTo="views:KeyboardManagerPage">
                     <muxc:NavigationViewItem.Icon>
                         <BitmapIcon UriSource="ms-appx:///Assets/FluentIcons/FluentIconsKeyboardManager.png"
@@ -115,6 +122,7 @@
                 </muxc:NavigationViewItem>
 
                 <muxc:NavigationViewItem x:Uid="Shell_PowerRename"
+                                         x:Name="PowerRename"
                                          helpers:NavHelper.NavigateTo="views:PowerRenamePage">
                     <muxc:NavigationViewItem.Icon>
                         <BitmapIcon UriSource="ms-appx:///Assets/FluentIcons/FluentIconsPowerRename.png"
@@ -123,6 +131,7 @@
                 </muxc:NavigationViewItem>
 
                 <muxc:NavigationViewItem x:Uid="Shell_PowerLauncher"
+                                         x:Name="PowerLauncher"
                                          helpers:NavHelper.NavigateTo="views:PowerLauncherPage">
                     <muxc:NavigationViewItem.Icon>
                         <BitmapIcon UriSource="ms-appx:///Assets/FluentIcons/FluentIconsPowerToysRun.png"
@@ -131,6 +140,7 @@
                 </muxc:NavigationViewItem>
 
                 <muxc:NavigationViewItem x:Uid="Shell_ShortcutGuide"
+                                         x:Name="ShortcutGuide"
                                          helpers:NavHelper.NavigateTo="views:ShortcutGuidePage">
                     <muxc:NavigationViewItem.Icon>
                         <BitmapIcon UriSource="ms-appx:///Assets/FluentIcons/FluentIconsShortcutGuide.png"
@@ -139,6 +149,7 @@
                 </muxc:NavigationViewItem>
 
                 <muxc:NavigationViewItem x:Uid="Shell_VideoConference"
+                                         x:Name="VideoConference"
                                          helpers:NavHelper.NavigateTo="views:VideoConferencePage"
                                          IsEnabled="{x:Bind ViewModel.IsVideoConferenceBuild, Mode=OneWay}">
                     <muxc:NavigationViewItem.Icon>

@@ -93,7 +93,11 @@ namespace Microsoft.PowerToys.Settings.UI.Library
 
             // If the settings file does not exist or if the file is corrupt, to create a new object with default parameters and save it to a newly created settings file.
             T newSettingsItem = new T();
-            SaveSettings(newSettingsItem.ToJsonString(), powertoy, fileName);
+            if (powertoy != EnterpriseSettings.EnterpriseModuleName)
+            {
+                SaveSettings(newSettingsItem.ToJsonString(), powertoy, fileName);
+            }
+
             return newSettingsItem;
         }
 

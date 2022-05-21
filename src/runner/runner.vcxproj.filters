@@ -42,7 +42,9 @@
     <ClCompile Include="centralized_hotkeys.cpp">
       <Filter>Utils</Filter>
     </ClCompile>
-    <ClCompile Include="enterprise_settings.cpp" />
+    <ClCompile Include="enterprise_settings.cpp">
+      <Filter>Utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h" />
