@@ -12,6 +12,10 @@ namespace Microsoft.PowerToys.Settings.UI.Library
     {
         public const string EnterpriseModuleName = "Enterprise";
 
+        // Gets or sets a value indicating whether enterprise settings should be used
+        [JsonPropertyName("enableEnterpriseSettings")]
+        public bool EnableEnterpriseSettings { get; set; }
+
         // Gets or sets a value indicating whether run powertoys on start-up.
         [JsonPropertyName("enableAutoUpdate")]
         public bool EnableAutoUpdate { get; set; }

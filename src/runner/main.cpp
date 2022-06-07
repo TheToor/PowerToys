@@ -125,7 +125,7 @@ int runner(bool isProcessElevated, bool openSettings, std::string settingsWindow
     {
         debug_verify_launcher_assets();
 
-        if (enterprise_settings.GetNamedBoolean(L"enableAutoUpdate", true))
+        if (enterprise_settings.GetNamedBoolean(L"enableEnterpriseSettings", false) && enterprise_settings.GetNamedBoolean(L"enableAutoUpdate", true))
         {
             std::thread{ [] {
                 PeriodicUpdateWorker();
@@ -175,7 +175,7 @@ int runner(bool isProcessElevated, bool openSettings, std::string settingsWindow
         };
 
         // In start_enabled_powertoys we just "force" disable modules. Maybe this can be skipped?
-        if (json::has(enterprise_settings, L"enabled"))
+        if (enterprise_settings.GetNamedBoolean(L"enableEnterpriseSettings", false) && json::has(enterprise_settings, L"enabled"))
         {
             for (const auto& enabled_element : enterprise_settings.GetNamedObject(L"enabled"))
             {
@@ -203,6 +203,14 @@ int runner(bool isProcessElevated, bool openSettings, std::string settingsWindow
                     }
                     modulesToLoad.emplace_back(knownModules[name]);
                 }
+            }
+        }
+        else
+        {
+            // If no enterprise settings are used just load all modules
+            for (const auto& module : knownModules)
+            {
+                modulesToLoad.emplace_back(module.second);
             }
         }
 

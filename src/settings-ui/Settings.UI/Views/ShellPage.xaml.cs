@@ -88,30 +88,33 @@ namespace Microsoft.PowerToys.Settings.UI.Views
             var settingsUtil = new SettingsUtils();
             var enterpriseSettings = SettingsRepository<EnterpriseSettings>.GetInstance(settingsUtil);
 
-            var items = navigationView.MenuItems.OfType<NavigationViewItem>();
-            foreach (var item in items)
+            if (enterpriseSettings.SettingsConfig.EnableEnterpriseSettings)
             {
-                var property = typeof(EnabledModules).GetProperty(item.Name);
-                if (property == null)
+                var items = navigationView.MenuItems.OfType<NavigationViewItem>();
+                foreach (var item in items)
                 {
-                    continue;
+                    var property = typeof(EnabledModules).GetProperty(item.Name);
+                    if (property == null)
+                    {
+                        continue;
+                    }
+
+                    var value = (bool)property.GetValue(enterpriseSettings.SettingsConfig.EnabledModules);
+                    if (!value)
+                    {
+                        item.Visibility = Visibility.Collapsed;
+                    }
                 }
 
-                var value = (bool)property.GetValue(enterpriseSettings.SettingsConfig.EnabledModules);
-                if (!value)
+                // If all Mouse modules are disabled we can hide the whole module from the navigation
+                if (
+                    !enterpriseSettings.SettingsConfig.EnabledModules.FindMyMouse &&
+                    !enterpriseSettings.SettingsConfig.EnabledModules.MouseHighlighter &&
+                    !enterpriseSettings.SettingsConfig.EnabledModules.MousePointerCrosshairs
+                )
                 {
-                    item.Visibility = Visibility.Collapsed;
+                    items.FirstOrDefault(i => (string)i.Content == "Mouse utilities").Visibility = Visibility.Collapsed;
                 }
-            }
-
-            // If all Mouse modules are disabled we can hide the whole module from the navigation
-            if (
-                !enterpriseSettings.SettingsConfig.EnabledModules.FindMyMouse &&
-                !enterpriseSettings.SettingsConfig.EnabledModules.MouseHighlighter &&
-                !enterpriseSettings.SettingsConfig.EnabledModules.MousePointerCrosshairs
-            )
-            {
-                items.FirstOrDefault(i => (string)i.Content == "Mouse utilities").Visibility = Visibility.Collapsed;
             }
 
             ShellHandler = this;

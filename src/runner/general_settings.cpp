@@ -93,7 +93,7 @@ void apply_general_settings(const json::JsonObject& general_configs, bool save, 
     run_as_elevated = general_configs.GetNamedBoolean(L"run_elevated", false);
 
     download_updates_automatically = general_configs.GetNamedBoolean(L"download_updates_automatically", true);
-    if (enterprise_settings != NULL)
+    if (enterprise_settings != NULL && enterprise_settings.GetNamedBoolean(L"enableEnterpriseSettings", false))
     {
         download_updates_automatically = download_updates_automatically && enterprise_settings.GetNamedBoolean(L"EnableAutoUpdates", true);
     }
