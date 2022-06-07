@@ -185,11 +185,6 @@ int runner(bool isProcessElevated, bool openSettings, std::string settingsWindow
                     continue;
                 }
                 const std::wstring name{ enabled_element.Key().c_str() };
-                if (!knownModules.contains(name))
-                {
-                    Logger::info(L"start_enabled_powertoys: Powertoy {} not found in enterprise config. Disabled by default", name);
-                    continue;
-                }
                 if (value.GetBoolean())
                 {
                     if (name.compare(L"Video Conference") == 0)
