@@ -93,10 +93,7 @@ namespace Microsoft.PowerToys.Settings.UI.Library
 
             // If the settings file does not exist or if the file is corrupt, to create a new object with default parameters and save it to a newly created settings file.
             T newSettingsItem = new T();
-            if (powertoy != EnterpriseSettings.EnterpriseModuleName)
-            {
-                SaveSettings(newSettingsItem.ToJsonString(), powertoy, fileName);
-            }
+            SaveSettings(newSettingsItem.ToJsonString(), powertoy, fileName);
 
             return newSettingsItem;
         }
@@ -116,6 +113,12 @@ namespace Microsoft.PowerToys.Settings.UI.Library
         [SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "General exceptions will be logged until we can better understand runtime exception scenarios")]
         public void SaveSettings(string jsonSettings, string powertoy = DefaultModuleName, string fileName = DefaultFileName)
         {
+            // Do not try to save Enterprise Settings
+            if (powertoy == EnterpriseSettings.EnterpriseModuleName)
+            {
+                return;
+            }
+
             try
             {
                 if (jsonSettings != null)
