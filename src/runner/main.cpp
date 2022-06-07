@@ -187,7 +187,7 @@ int runner(bool isProcessElevated, bool openSettings, std::string settingsWindow
                 const std::wstring name{ enabled_element.Key().c_str() };
                 if (!knownModules.contains(name))
                 {
-                    // Log info/warn/error?
+                    Logger::info(L"start_enabled_powertoys: Powertoy {} not found in enterprise config. Disabled by default", name);
                     continue;
                 }
                 if (value.GetBoolean())
